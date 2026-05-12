@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>過去問ユニ - プレミアム過去問演習</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+JP:wght@300;400;700&family=Noto+Serif+JP:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --exam-paper: #fdfdfb;
+        }
+        body { 
+            font-family: 'Noto Sans JP', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .font-exam { 
+            font-family: 'Noto Serif JP', serif; 
+            letter-spacing: 0.02em;
+        }
+        .bg-paper { background-color: var(--exam-paper); }
+        .fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .glass { 
+            background: rgba(255, 255, 255, 0.85); 
+            backdrop-filter: blur(20px); 
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .btn-premium {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .btn-premium:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2);
+        }
+        .loader { 
+            border-top-color: #6366f1; 
+            animation: spinner 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite; 
+        }
+        @keyframes spinner { to { transform: rotate(360deg); } }
+        
+        .math-block {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            color: #1e293b;
+            background: #f8fafc;
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+    <!-- ナビゲーション -->
+    <header class="sticky top-0 z-50 glass border-b border-slate-200/60">
+        <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-4 cursor-pointer group" onclick="router.home()">
+                <div class="bg-gradient-to-br from-indigo-600 to-violet-700 p-2.5 rounded-2xl text-white shadow-xl shadow-indigo-100 group-hover:rotate-3 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-xl tracking-tighter text-slate-900">過去問ユニ</h1>
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] leading-none">Premium Learning</p>
+                </div>
+            </div>
+            
+            <div id="headerProgress" class="hidden flex-1 max-w-sm mx-12">
+                <div class="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                    <div id="progressBar" class="bg-indigo-600 h-full transition-all duration-700 ease-out" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <button class="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1V11a2 2 0 0 1-2-2 2 2 0 0 1 2-2v-.09A1.65 1.65 0 0 0 5 4.6a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1 1.51V13a2 2 0 0 1 2 2 2 2 0 0 1-2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V19a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51z"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- コンテンツ表示エリア -->
+    <main id="app" class="max-w-6xl mx-auto px-6 pt-12 pb-32"></main>
+
+    <!-- AI解説モーダル -->
+    <div id="aiModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-md">
+        <div class="bg-white rounded-[2.5rem] max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 border border-white/20">
+            <div class="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-900 text-white">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-indigo-500 rounded-xl">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="3" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+                    </div>
+                    <span class="font-bold text-lg tracking-tight">AI 講師のインサイト</span>
+                </div>
+                <button onclick="closeAIModal()" class="hover:bg-white/10 p-2 rounded-full transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <div id="aiContent" class="p-10 overflow-y-auto font-exam text-xl leading-relaxed text-slate-700 bg-paper">
+                <!-- AI解説 -->
+            </div>
+            <div class="p-6 bg-white border-t border-slate-100 flex justify-end">
+                <button onclick="closeAIModal()" class="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-bold btn-premium shadow-lg">理解しました</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Gemini API ---
+        const apiKey = ""; 
+        const geminiModel = "gemini-2.5-flash-preview-09-2025";
+        
+        async function callGemini(prompt) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: "あなたは日本の難関大学入試の専門講師です。受験生に対して、論理的かつ分かりやすく、親しみやすい言葉で解説を行ってください。重要なポイントは明朝体で強調されることを意識してください。" }] }
+            };
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                return result.candidates?.[0]?.content?.parts?.[0]?.text;
+            } catch (e) {
+                return "解説の取得中にエラーが発生しました。時間を置いて再度お試しください。";
+            }
+        }
+
+        // --- 全問題データセット ---
+        const EXAM_DATA = {
+            english: {
+                title: '英語',
+                icon: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m5 8 6 6 6-6"/><path d="m4 14 8-8 8 8"/></svg>`,
+                color: 'indigo',
+                sections: [
+                    {
+                        title: "長文読解1：Firefighting Robots",
+                        content: `The Fire and Disaster Management Agency plans to deploy unmanned water-cannon robots to emergency fire assistance teams nationwide, aiming to enhance disaster response and firefighter safety.\n\nThe initiative follows lessons learned from the Jan. 1 Noto Peninsula earthquake, where delayed firefighting efforts in the city of Wajima, Ishikawa Prefecture, exacerbated damage due to a major tsunami warning.\n\nThe robots, remotely operated, can navigate fire sites even during earthquakes or tsunami warnings. They will receive water from fire engines to suppress flames and are equipped with water curtain nozzles to prevent the spread of fire by creating a barrier against flying embers.`,
+                        questions: [
+                            { q: "【問1】 下線① 'deploy' の意味として適切なものは？", options: ["配置する", "展示する", "訓練する", "防止する"], correct: 0 },
+                            { q: "【問2】 下線② 'enhance' の意味として適切なものは？", options: ["要請する", "予防する", "救助する", "強化する"], correct: 3 },
+                            { q: "【問3】 下線③ 'due to a major tsunami warning' の意味は？", options: ["津波警報を迅速に出せずに", "主な津波を検知して", "大津波警報が原因で", "津波から避難するまでの間に"], correct: 2 },
+                            { q: "【問4】 下線④ 'flames' の意味として適切なものは？", options: ["森林", "水", "避難所", "炎"], correct: 3 },
+                            { q: "【問5】 本文の内容と合致しないものを選んでください。", options: ["がれきの中で救助活動のできるロボット導入予定", "破損した道路でも通行可能な小型車両導入予定", "緊急要員のためのエアコン付きテント設置予定", "高機能テントでは宿泊することも可能"], correct: 0 }
+                        ]
+                    },
+                    {
+                        title: "長文読解2：Zazen (座禅)",
+                        content: `Thousands of years later, in Japan the practice continues under the name "zazen." Zazen is the Japanese term coined for a practice that originated in India, flourished in China, then arrived in Japan in the early 13th century.\n\nOne notable figure that was influenced by Zen Buddhism and zazen was Apple Founder Steve Jobs. ... Today, zazen and other mindfulness exercises are practiced across the globe... While meditating, it is not uncommon to lose focus, or even drift off to sleep. To combat this the monks will strike those meditating with a stick called keisaku.`,
+                        questions: [
+                            { q: "【問1】 下線① 'notable' と同じ意味の語句を選んでください。", options: ["minor", "major", "minded", "middle"], correct: 1 },
+                            { q: "【問2】 第2段落の内容と合致するものを選んでください。", options: ["インド由来の座禅は中国で栄え、日本に伝わった", "中国発祥の座禅は、インドに伝わるまで時間がかかった", "日本では最初あまり受け入れられなかった", "禅は日本で栄える前に西欧で人気が出た"], correct: 0 },
+                            { q: "【問3】 下線③ 'enormous' と同じ意味の語句を選んでください。", options: ["beautify", "courageous", "sympathy", "tremendous"], correct: 3 },
+                            { q: "【問4】 第3段落の内容と合致しないものを選んでください。", options: ["ジョブズ氏は精神的探究者であった", "ジョブズ氏が座禅に影響を受けていたことは周知であった", "ジョブズ氏の死後、多くの企業が座禅を取り入れた", "西欧での興味は出版物が影響している"], correct: 2 },
+                            { q: "【問5】 下線⑤ 'drift off to sleep' と同じ意味の語句は？", options: ["sleeping", "will be slept", "fall asleep", "without let you sleep"], correct: 2 }
+                        ]
+                    },
+                    {
+                        title: "語彙・英文法 (Q1-Q15)",
+                        questions: [
+                            { q: "Q1. \"What does your brother do?\" \"( ) cars.\"", options: ["It bought", "His does", "Drives him", "He sells"], correct: 3 },
+                            { q: "Q2. You're late again. What ( )?", options: ["did it go", "were you doing", "did you doing", "are you do"], correct: 1 },
+                            { q: "Q3. Summer vacation is just ( ) corner.", options: ["soon about", "around the", "to go coming", "time around"], correct: 1 },
+                            { q: "Q4. \"( ) France?\" \"Yeah, twice.\"", options: ["Did you ever went", "Have you ever been to", "Has it going to", "Was she been in"], correct: 1 },
+                            { q: "Q5. \"This book is really ( ).\"", options: ["missed", "bored", "missing", "boring"], correct: 3 },
+                            { q: "Q6. \"No, ( ) school.\"", options: ["I walk to", "I went walking", "it on foot", "there to foot"], correct: 0 },
+                            { q: "Q7. That was the most ( ) moment I've ever had.", options: ["skin-shutting", "air-heart", "hair-stand", "jaw-dropping"], correct: 3 },
+                            { q: "Q8. ( ) us?", options: ["Are you join", "Will be it joining", "Would you like to join", "Would you like to joining"], correct: 2 },
+                            { q: "Q9. \"My grandfather passed away.\" \"Oh, I'm so ( )\"", options: ["lucky", "happy", "sorry", "bad"], correct: 2 },
+                            { q: "Q10. \"Could you ( ) your name here?\"", options: ["writing", "please to fill", "ask", "fill in"], correct: 3 },
+                            { q: "Q11. \"( ) How've you been?\"", options: ["It's been a while", "Time have pass", "Long haven't seeing", "Having meet great"], correct: 0 },
+                            { q: "Q12. \"Yeah, I ( ) for my exam.\"", options: ["woke up night", "stayed up all night preparing", "was studied to prepare", "late night prepare"], correct: 1 },
+                            { q: "Q13. \"Thanks. You've ( )!\"", options: ["comment getting", "had a nerve", "taking me high", "made my day"], correct: 3 },
+                            { q: "Q14. \"Oh, my back is ( ).\"", options: ["telling it", "killing me", "pain hardly", "sick hurt"], correct: 1 },
+                            { q: "Q15. \"Maybe you ( ) about it.\"", options: ["must claiming", "can claim back", "should complain", "should complaining"], correct: 2 }
+                        ]
+                    }
+                ]
+            },
+            math: {
+                title: '数学',
+                icon: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="12" y1="8" x2="12" y2="16"/></svg>`,
+                color: 'violet',
+                sections: [
+                    {
+                        title: "大問1：基礎計算・ベクトル・確率",
+                        questions: [
+                            { q: "① <span class='math-block'>(a^{1/2}+b^2)^3</span> を展開しなさい。", hint: "二項定理を利用しましょう。" },
+                            { q: "② <span class='math-block'>(a-2b)^8</span> の <span class='math-block'>a^5b^3</span> の係数を求めよ。", hint: "8C3 × (a)^5 × (-2b)^3 を計算します。" },
+                            { q: "③ <span class='math-block'>Σ(k=1 to 10) (3k+1)</span> を計算せよ。", hint: "等差数列の和の公式を利用。" },
+                            { q: "④ <span class='math-block'>1/2+1/6+1/12...+1/x(x+1)</span> を計算せよ。", hint: "部分分数分解を利用します。" },
+                            { q: "⑤ 正六角形ABCDEFにおいてベクトル a, b で表現せよ。", hint: "図を書いて合成を考えます。" },
+                            { q: "⑥ x-y=-√7, xy=10 のとき、x^2+y^2 と x^3-y^3 を求めよ。", hint: "対称式の変形公式を使います。" },
+                            { q: "⑦ 180° ≤ θ ≤ 270°, cosθ = -1/3 のときの sin, tan。", hint: "三角関数の相互関係と符号に注意。" },
+                            { q: "⑧ 0,1,2,3,4,5から異なる3桁の偶数を作る確率を求めよ。", hint: "1の位が0かそれ以外かで場合分け。" }
+                        ]
+                    },
+                    {
+                        title: "大問2-3：因数分解と方程式",
+                        questions: [
+                            { q: "2xyz + x^2y + x^2z + xy^2 + y^2z + xz^2 + yz^2 を因数分解せよ。", hint: "特定の文字について整理します。" },
+                            { q: "方程式を解け: 2(x-2) = 30/x", hint: "分母を払って2次方程式にします。" },
+                            { q: "方程式を解け: log10(x) + log10(x+3) = 1", hint: "真数条件に注意して解きます。" },
+                            { q: "不等式を解け: x^2 + 4x + 4 ≤ 0", hint: "(x+2)^2 の形に注目。" }
+                        ]
+                    },
+                    {
+                        title: "大問4-7：文章題・微分・図形",
+                        questions: [
+                            { q: "11%と1%の食塩水を混ぜて6%を1000g作る。11%は何gか？", hint: "食塩の量の方程式を立てます。" },
+                            { q: "Aは18分、A+Bで6分。Bだけで満杯にする時間は？", hint: "仕事率 1/18 + 1/B = 1/6 を解きます。" },
+                            { q: "f(x) = x^3 - 3x - 2c の増減を調べよ。", hint: "微分して導関数の符号を調べます。" },
+                            { q: "半径6と半径2の円柱を切り抜いた図形の表面積を求めよ。", hint: "上下底面、外側・内側側面の合計です。" }
+                        ]
+                    }
+                ]
+            },
+            japanese: {
+                title: '国語',
+                icon: `<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg>`,
+                color: 'rose',
+                sections: [
+                    {
+                        title: "現代文1：茂木健一郎「脳と創造性」",
+                        content: `神ならぬ人間は、宇宙の中の全てを見通すことはできない。自らが住む (a) カンキョウ についても、完全な知識を得ることはできない。どのような道を選べば生きる上で最も有益なのか、それがわからないままに決断し、選択している。人間は、いわば「有限の立場」に投げ込まれているのである。未来が見渡せないままに不確実性の海に飛び込むというのは、創造性の発揮において、人間がまさに行っていることである。`,
+                        questions: [
+                            { q: "問三：(A)に入れるのに最適な語句は？", options: ["苦悩", "検討", "判断", "妄想"], correct: 2 },
+                            { q: "問六：傍線部「有益」の意味として最適なものは？", options: ["かしこい", "前もって", "正確に", "優秀な", "ためになる"], correct: 4 },
+                            { q: "問七：「有限の立場」の説明として最適なものは？", options: ["全てを見通せない不完全な立場", "コンピュータと同様の立場", "すべてが見えている立場"], correct: 0 },
+                            { q: "問八：条件に当てはまらないものは？", options: ["新しいものが生まれる可能性", "未来が不確実であること", "文明に飼い慣らされていること"], correct: 2 }
+                        ]
+                    },
+                    {
+                        title: "現代文2：岡 真理「記憶／物語」",
+                        content: `『プライベート・ライアン』の冒頭三十分、連合軍のノルマンディー上陸を描いた場面は、出色の映像である。観客は戦場を比類ない「リアルさ」でもって体験する。砲弾がさく裂する戦場に身をおいているかのような (a) サッカク にとらわれさえするだろう。私たちが恐竜の描写を「リアルだ」と語ることそれ自体が、それが本物ではないことを逆説的に語ってしまう。`,
+                        questions: [
+                            { q: "問六：傍線部「出色」の意味として最適なものは？", options: ["強い刺激がある", "他と比べて派手", "他と比べて目立って優れている"], correct: 2 },
+                            { q: "問十：「逆説的に語ってしまう」の説明として最適なものは？", options: ["本物を想起させる", "かえって現実でないことが明らかになる", "本物と混同していないことを示す"], correct: 1 }
+                        ]
+                    },
+                    {
+                        title: "現代文3：村上 陽一郎「あらまほしき自然」",
+                        content: `われわれの間に ( ② )されている、自然という観念について。ドイツの「黒い森」は過去の ( ⑤ ) な植林の成果である。本来の自然は、トキが絶滅しようと一向に気にはしない。人間は自然の「主人」ではなく「執事」とみなせばよい、という考えが支配的になってきている。`,
+                        questions: [
+                            { q: "空欄(②)にふさわしい語句は？", options: ["共有", "固定", "持続", "普遍"], correct: 0 },
+                            { q: "空欄(⑤)にふさわしい語句は？", options: ["丹念", "雑", "画一", "画期的"], correct: 2 }
+                        ]
+                    },
+                    {
+                        title: "語彙・慣用句",
+                        questions: [
+                            { q: "「生兵法は大怪我のもと」の意味は？", options: ["言葉も行動も達者", "未熟な知識で行うと失敗する", "時期遅れで役に立たない"], correct: 1 },
+                            { q: "「逆鱗に触れる」の意味は？", options: ["激しく怒らせる", "物事を解決する", "親密な交友"], correct: 0 },
+                            { q: "「天に唾する」", options: ["他人を傷つけようとして自分が傷つく", "負け惜しみ", "抜け目がない"], correct: 0 },
+                            { q: "「快刀乱麻を断つ」", options: ["時期遅れ", "物事をすっきり解決する", "きわめて親密"], correct: 1 },
+                            { q: "「十日の菊」", options: ["時期遅れで役に立たない", "素晴らしい交友", "負け惜しみ"], correct: 0 }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        // --- ルーター & ステート ---
+        let userAnswers = {};
+        let activeSection = null;
+
+        const router = {
+            home: () => {
+                document.getElementById('headerProgress').classList.add('hidden');
+                const app = document.getElementById('app');
+                app.innerHTML = `
+                    <div class="fade-in">
+                        <div class="mb-16 text-center">
+                            <h2 class="text-6xl font-black text-slate-900 mb-6 tracking-tight">学びを、<br class="sm:hidden">もっと自由に。</h2>
+                            <p class="text-slate-400 text-xl font-medium max-w-2xl mx-auto">全ての過去問を一つの場所に。AI講師の解説で、最短距離の合格へ。</p>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                            ${Object.entries(EXAM_DATA).map(([key, sub]) => `
+                                <div onclick="router.subject('${key}')" class="group p-12 rounded-[2.5rem] bg-white border border-slate-200/60 shadow-sm hover:shadow-2xl hover:border-indigo-400 btn-premium cursor-pointer relative overflow-hidden">
+                                    <div class="absolute -right-8 -top-8 w-40 h-40 bg-${sub.color}-50 rounded-full opacity-30 group-hover:scale-125 transition-transform duration-700"></div>
+                                    <div class="w-16 h-16 rounded-2xl bg-${sub.color}-50 text-${sub.color}-600 flex items-center justify-center mb-10 relative">
+                                        ${sub.icon}
+                                    </div>
+                                    <h3 class="font-bold text-slate-900 text-2xl relative mb-3">${sub.title}</h3>
+                                    <p class="text-slate-400 font-medium leading-relaxed relative">全問題収録済み。AIによる個別解説が可能です。</p>
+                                    <div class="mt-10 flex items-center gap-2 text-${sub.color}-600 font-bold group-hover:gap-4 transition-all">
+                                        問題を解く <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke-width="3"/></svg>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            },
+
+            subject: (key) => {
+                const sub = EXAM_DATA[key];
+                const app = document.getElementById('app');
+                app.innerHTML = `
+                    <div class="fade-in max-w-4xl mx-auto">
+                        <button onclick="router.home()" class="flex items-center gap-2 text-slate-400 hover:text-slate-900 mb-12 font-bold transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" stroke-width="3"/></svg> 戻る
+                        </button>
+                        <h2 class="text-4xl font-black text-slate-900 mb-10">${sub.title} 演習セット</h2>
+                        <div class="space-y-4">
+                            ${sub.sections.map((sec, idx) => `
+                                <div onclick="router.session('${key}', ${idx})" class="group p-8 bg-white border border-slate-200/60 rounded-[2rem] flex justify-between items-center hover:border-indigo-400 hover:shadow-xl btn-premium cursor-pointer">
+                                    <div class="flex items-center gap-6">
+                                        <div class="bg-slate-50 p-4 rounded-2xl group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253" stroke-width="2.5"/></svg>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-slate-800 text-xl">${sec.title}</h4>
+                                            <span class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1 inline-block">${sec.questions.length}問</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-3 bg-slate-50 text-slate-300 group-hover:bg-indigo-600 group-hover:text-white rounded-2xl transition-all">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-width="3"/></svg>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            },
+
+            session: (subKey, idx) => {
+                activeSection = EXAM_DATA[subKey].sections[idx];
+                userAnswers = {};
+                document.getElementById('headerProgress').classList.remove('hidden');
+                document.getElementById('progressBar').style.width = '0%';
+                
+                const app = document.getElementById('app');
+                app.innerHTML = `
+                    <div class="fade-in">
+                        <div class="flex justify-between items-center mb-12">
+                            <button onclick="router.subject('${subKey}')" class="text-slate-400 font-bold hover:text-slate-900 transition-colors">
+                                ← 中断する
+                            </button>
+                            <span class="bg-slate-900 text-white px-6 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] shadow-lg">${activeSection.title}</span>
+                        </div>
+                        
+                        <div class="flex flex-col lg:flex-row gap-12">
+                            ${activeSection.content ? `
+                                <div class="lg:w-1/2">
+                                    <div class="bg-paper p-12 rounded-[3rem] border border-slate-200/60 shadow-sm sticky top-32 max-h-[70vh] overflow-y-auto">
+                                        <div class="flex justify-between items-center mb-10">
+                                            <span class="text-[10px] font-black text-slate-300 tracking-[0.4em] uppercase">Examination Text</span>
+                                            <button onclick="explainPassage()" class="flex items-center gap-2 text-[10px] font-black bg-indigo-600 text-white px-5 py-2 rounded-full shadow-lg btn-premium">
+                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="3"/></svg> AI解説
+                                            </button>
+                                        </div>
+                                        <div class="font-exam text-2xl leading-[2.4] text-slate-800 whitespace-pre-wrap">${activeSection.content}</div>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            <div class="${activeSection.content ? 'lg:w-1/2' : 'max-w-3xl mx-auto w-full'} space-y-10 pb-32">
+                                ${activeSection.questions.map((q, qIdx) => `
+                                    <div class="bg-white p-12 rounded-[3rem] border border-slate-200/60 shadow-sm">
+                                        <div class="flex justify-between items-start mb-10">
+                                            <div class="flex items-start gap-6">
+                                                <span class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-black text-xl shadow-xl">Q${qIdx + 1}</span>
+                                                <h4 class="text-2xl font-bold leading-snug pt-1">${q.q}</h4>
+                                            </div>
+                                            <button onclick="explainQuestion(${qIdx})" class="p-3 text-indigo-400 hover:bg-indigo-50 rounded-2xl transition-all" title="AI解説">
+                                                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2.5"/></svg>
+                                            </button>
+                                        </div>
+                                        ${q.options ? `
+                                            <div class="space-y-3">
+                                                ${q.options.map((opt, oIdx) => `
+                                                    <button onclick="handleSelect(${qIdx}, ${oIdx})" id="q-${qIdx}-opt-${oIdx}" class="w-full text-left p-6 rounded-3xl border-2 border-slate-50 hover:border-indigo-200 bg-slate-50/30 transition-all flex items-center gap-6 group">
+                                                        <span class="w-10 h-10 rounded-full border-2 border-slate-200 flex items-center justify-center text-xs font-black text-slate-300 group-hover:border-indigo-400 group-hover:text-indigo-600 transition-colors">${String.fromCharCode(65+oIdx)}</span>
+                                                        <span class="font-bold text-slate-700 text-lg">${opt}</span>
+                                                    </button>
+                                                `).join('')}
+                                            </div>
+                                        ` : `
+                                            <div class="p-10 bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] text-center">
+                                                <p class="text-slate-400 font-bold mb-6">ノートに解答を記述してください。</p>
+                                                <button onclick="toggleHint(${qIdx})" class="text-xs font-black text-indigo-600 bg-white border border-indigo-100 px-6 py-2.5 rounded-xl shadow-sm btn-premium">解法のヒント</button>
+                                                <div id="hint-${qIdx}" class="hidden mt-8 p-8 bg-white border border-indigo-50 text-slate-600 rounded-3xl text-lg text-left leading-relaxed">
+                                                    <strong class="text-indigo-900 block mb-2">【Hint】</strong> ${q.hint}
+                                                </div>
+                                            </div>
+                                        `}
+                                    </div>
+                                `).join('')}
+                                
+                                ${activeSection.questions[0].options ? `
+                                    <button onclick="router.results()" class="w-full py-8 bg-slate-900 text-white font-black text-2xl rounded-[2.5rem] shadow-2xl hover:bg-black active:scale-[0.98] transition-all">
+                                        解答を完了する
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            results: () => {
+                document.getElementById('headerProgress').classList.add('hidden');
+                let score = 0;
+                activeSection.questions.forEach((q, idx) => {
+                    if (userAnswers[idx] === q.correct) score++;
+                });
+                const percentage = Math.round((score / activeSection.questions.length) * 100);
+                const app = document.getElementById('app');
+                app.innerHTML = `
+                    <div class="max-w-2xl mx-auto text-center py-20 fade-in">
+                        <div class="relative w-64 h-64 mx-auto mb-16 flex items-center justify-center">
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle cx="128" cy="128" r="120" stroke="#f1f5f9" stroke-width="12" fill="transparent"/>
+                                <circle cx="128" cy="128" r="120" stroke="#4f46e5" stroke-width="12" fill="transparent" 
+                                    stroke-dasharray="754" 
+                                    stroke-dashoffset="${754 - (754 * percentage / 100)}"
+                                    stroke-linecap="round"
+                                    class="transition-all duration-[1.5s] ease-out"
+                                />
+                            </svg>
+                            <div class="absolute flex flex-col">
+                                <span class="text-7xl font-black text-slate-900">${percentage}%</span>
+                                <span class="text-[10px] font-black text-slate-300 tracking-widest mt-2">SCORE</span>
+                            </div>
+                        </div>
+                        <h2 class="text-5xl font-black text-slate-900 mb-6">${percentage >= 80 ? '素晴らしい到達度です！' : '演習完了！'}</h2>
+                        <p class="text-slate-400 text-2xl font-medium mb-16">${activeSection.questions.length}問中 ${score}問 正解しました。</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <button onclick="router.home()" class="py-6 bg-slate-900 text-white font-black text-xl rounded-3xl shadow-xl">トップに戻る</button>
+                            <button onclick="location.reload()" class="py-6 bg-white border-2 border-slate-200 font-black text-xl rounded-3xl hover:bg-slate-50 transition-all">もう一度挑戦</button>
+                        </div>
+                    </div>
+                `;
+            }
+        };
+
+        // --- インタラクション ---
+        window.handleSelect = (qIdx, oIdx) => {
+            activeSection.questions[qIdx].options.forEach((_, i) => {
+                const el = document.getElementById(`q-${qIdx}-opt-${i}`);
+                if (el) el.classList.remove('border-indigo-600', 'bg-indigo-50', 'text-indigo-800', 'shadow-lg');
+            });
+            const el = document.getElementById(`q-${qIdx}-opt-${oIdx}`);
+            if (el) el.classList.add('border-indigo-600', 'bg-indigo-50', 'text-indigo-800', 'shadow-lg');
+            userAnswers[qIdx] = oIdx;
+
+            const answered = Object.keys(userAnswers).length;
+            const progress = (answered / activeSection.questions.length) * 100;
+            const pb = document.getElementById('progressBar');
+            if (pb) pb.style.width = `${progress}%`;
+        };
+
+        window.toggleHint = (idx) => {
+            document.getElementById(`hint-${idx}`).classList.toggle('hidden');
+        };
+
+        window.openAIModal = () => document.getElementById('aiModal').classList.remove('hidden');
+        window.closeAIModal = () => document.getElementById('aiModal').classList.add('hidden');
+
+        window.showAILoading = () => {
+            document.getElementById('aiContent').innerHTML = `
+                <div class="flex flex-col items-center justify-center py-20">
+                    <div class="loader ease-linear rounded-full border-4 border-t-4 border-slate-100 h-16 w-16 mb-8"></div>
+                    <p class="text-slate-400 font-bold tracking-widest animate-pulse">AI講師が分析中...</p>
+                </div>
+            `;
+            openAIModal();
+        };
+
+        window.explainPassage = async () => {
+            showAILoading();
+            const response = await callGemini(`この入試問題を分析し、3つの重要なポイントで要約してください：\n\n${activeSection.content}`);
+            document.getElementById('aiContent').innerText = response;
+        };
+
+        window.explainQuestion = async (idx) => {
+            showAILoading();
+            const q = activeSection.questions[idx];
+            const response = await callGemini(`以下の入試問題の解説を詳しくお願いします：\n\n問題：${q.q}\n正解：${q.options ? q.options[q.correct] : '記述'}\n本文：${activeSection.content || 'なし'}`);
+            document.getElementById('aiContent').innerText = response;
+        };
+
+        router.home();
+    </script>
+</body>
+</html>
